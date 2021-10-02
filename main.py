@@ -198,18 +198,21 @@ def printStats(ptype, avg, pos, neg, weatherLen):
     maxBuff = max(pos)*100 if numOfPosImpact > 0 else 0
     maxDebuff = abs(min(neg)*100) if numOfNegImpact > 0 else 0
 
-    print(ptype)
+    print(ptype.name.title())
     print("   Probabilities: (+){:.2f}%, (-){:.2f}%, (~){:.2f}%".format(
         (numOfPosImpact/weatherLen)*100, (numOfNegImpact/weatherLen)*100,
         ((weatherLen-(numOfNegImpact+numOfPosImpact))/weatherLen)*100))
-    print("   Max Impact: +{:.0f}%, -{:.0f}%".format(maxBuff, maxDebuff))
-    print("   Possible Buffs: ", end="")
-    for buf in sorted(pos, reverse=True):
-        print("+{:.0f}% ".format(buf*100), end="")
+    print("   Max Impact: +{:.0f}% | -{:.0f}%".format(maxBuff, maxDebuff))
 
-    print("\n   Possible Debuffs: ", end="")
-    for debuf in sorted(neg):
-        print("{:.0f}% ".format(debuf*100), end="")
+    if numOfPosImpact > 0:
+        print("   Possible Buffs: ", end="")
+        for buf in sorted(pos, reverse=True):
+            print("+{:.0f}% ".format(buf*100), end="")
+
+    if numOfNegImpact > 0:
+        print("\n   Possible Debuffs: ", end="")
+        for debuf in sorted(neg):
+            print("{:.0f}% ".format(debuf*100), end="")
 
     print("\n   Average Impact: {:.2f}%\n".format((avg*100)))
 
@@ -219,6 +222,7 @@ if __name__ == "__main__":
         season = Season[input("Enter current season: ").upper()]
     except KeyError:
         exit("Invalid season. Season can be: Spring, Summer, Autumn or Winter")
+
     try:
         weatherYesterday = Weather[input("Enter yesterdays weather: ").strip().upper()]
         weatherToday = Weather[input("Enter todays weather: ").strip().replace(" ", "_").upper()]
