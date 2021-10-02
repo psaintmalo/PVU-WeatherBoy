@@ -1,4 +1,14 @@
 from enum import Enum
+import datetime
+
+AUTO_ENABLED = True
+
+try:
+    import requests
+    import json
+except ImportError as e:
+    AUTO_ENABLED = False
+    print("\nPlease ensure the requests python package is installed in order to use the automatic weather fetcher\n")
 
 
 def effects(metal=0.0, dark=0.0, light=0.0, water=0.0, ice=0.0, wind=0.0, electro=0.0, fire=0.0, parasite=0.0):
@@ -217,19 +227,43 @@ def printStats(ptype, avg, pos, neg, weatherLen):
     print("\n   Average Impact: {:.2f}%\n".format((avg*100)))
 
 
-if __name__ == "__main__":
+def manual_data_input():
+
     try:
-        season = Season[input("Enter current season: ").upper()]
+        manSeason = Season[input("Enter current season: ").upper()]
     except KeyError:
         exit("Invalid season. Season can be: Spring, Summer, Autumn or Winter")
 
     try:
-        weatherYesterday = Weather[input("Enter yesterdays weather: ").strip().upper()]
-        weatherToday = Weather[input("Enter todays weather: ").strip().replace(" ", "_").upper()]
+        manWeatherYesterday = Weather[input("Enter yesterdays weather: ").strip().upper()]
+        manWeatherToday = Weather[input("Enter todays weather: ").strip().replace(" ", "_").upper()]
     except KeyError:
         exit("Invalid weather name. If unsure about yesterdays weather, use \"null\"")
 
-    weatherCooldown = (weatherYesterday, weatherToday)
+    oldWeather = (manWeatherYesterday, manWeatherToday)
+
+    return manSeason, oldWeather
+
+
+def auto_data_scraper():
+    page = requests.get("https://pvuextratools.com/4.9b97a2ecc710b1f9e59c.js")
+    content = page.text.split("FyW3:function(t){t.exports=JSON.parse('")[1][:-7]
+
+    dataJson = json.loads(content)
+
+    autoSeason = Season[dataJson["tomorrowSeason"].upper()]
+    oldWeather = (Weather[dataJson["yesterdayEvent"].upper().replace(" ", "_")],
+                  Weather[dataJson["todayEvent"].upper().replace(" ", "_")])
+
+    return autoSeason, oldWeather
+
+
+if __name__ == "__main__":
+
+    if AUTO_ENABLED:
+        season, weatherCooldown = auto_data_scraper()
+    else:
+        season, weatherCooldown = manual_data_input()
 
     weatherList = get_possible_weather(season, weatherCooldown)
     weatherLen = len(weatherList)
