@@ -1,8 +1,10 @@
 AUTO_ENABLED = True
+SAFETY_MARGIN = 5  # E.g. If average impact is below +5%, it will recommend a greenhouse.
 
 from enum import Enum
 from time import sleep
 import datetime
+
 
 def setDriver():
     # Set up the driver to use headless chrome
@@ -10,6 +12,7 @@ def setDriver():
     options.headless = True
     driver = webdriver.Chrome(options=options)
     return driver
+
 
 if AUTO_ENABLED:
     try:
@@ -168,6 +171,50 @@ masterWeather = {Season.SPRING: springSeason, Season.SUMMER: summerSeason, Seaso
                  Season.WINTER: winterSeason}
 
 
+def manual_data_input():
+
+    try:
+        manSeason = Season[input("Enter current season: ").upper()]
+    except KeyError:
+        exit("Invalid season. Season can be: Spring, Summer, Autumn or Winter")
+
+    try:
+        manWeatherYesterday = Weather[clean_name(input("Enter yesterdays weather: "))]
+        manWeatherToday = Weather[clean_name(input("Enter todays weather: "))]
+    except KeyError:
+        exit("Invalid weather name. If unsure about weather, use \"null\"")
+
+    oldWeather = (manWeatherYesterday, manWeatherToday)
+
+    return manSeason, oldWeather
+
+
+def auto_data_scraper():
+    try:
+        print("Starting driver")
+        driver = setDriver()
+        print("Fetching data")
+        driver.get("https://pvuextratools.com/")
+        #sleep(1)
+        events = driver.find_elements_by_class_name("event")
+        w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
+             Weather[clean_name(events[1].get_attribute("textContent")[7:])])
+
+        seasons = driver.find_elements_by_class_name("season")
+        s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
+
+    except Exception:
+        print("Something went wrong with the automatic fetch...")
+        s, w = manual_data_input()
+
+    try:
+        driver.quit()
+    except Exception:
+        pass
+
+    return s, w
+
+
 def clean_name(name):
     return name.strip().upper().replace(" ", "_")
 
@@ -228,7 +275,14 @@ def printStats(ptype, avg, pos, neg, weatherLen):
     maxBuff = max(pos)*100 if numOfPosImpact > 0 else 0
     maxDebuff = abs(min(neg)*100) if numOfNegImpact > 0 else 0
 
-    print(ptype.name.title())
+    if avg < 0:
+        recText = "! Greenhouse !"
+    elif avg < 0+SAFETY_MARGIN/100:
+        recText = "Safety Greenhouse"
+    else:
+        recText = "Safe"
+
+    print("- {} - ({}) ".format(ptype.name.title(), recText))
     print("   Probabilities: (+){:.2f}%, (-){:.2f}%, (~){:.2f}%".format(
         (numOfPosImpact/weatherLen)*100, (numOfNegImpact/weatherLen)*100,
         ((weatherLen-(numOfNegImpact+numOfPosImpact))/weatherLen)*100))
@@ -245,50 +299,6 @@ def printStats(ptype, avg, pos, neg, weatherLen):
             print("{:.0f}% ".format(debuf*100), end="")
 
     print("\n   Average Impact: {:.2f}%\n".format((avg*100)))
-
-
-def manual_data_input():
-
-    try:
-        manSeason = Season[input("Enter current season: ").upper()]
-    except KeyError:
-        exit("Invalid season. Season can be: Spring, Summer, Autumn or Winter")
-
-    try:
-        manWeatherYesterday = Weather[clean_name(input("Enter yesterdays weather: "))]
-        manWeatherToday = Weather[clean_name(input("Enter todays weather: "))]
-    except KeyError:
-        exit("Invalid weather name. If unsure about weather, use \"null\"")
-
-    oldWeather = (manWeatherYesterday, manWeatherToday)
-
-    return manSeason, oldWeather
-
-
-def auto_data_scraper():
-    try:
-        print("Starting driver")
-        driver = setDriver()
-        print("Fetching data")
-        driver.get("https://pvuextratools.com/")
-        #sleep(1)
-        events = driver.find_elements_by_class_name("event")
-        w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
-             Weather[clean_name(events[1].get_attribute("textContent")[7:])])
-
-        seasons = driver.find_elements_by_class_name("season")
-        s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
-
-    except Exception:
-        print("Something went wrong with the automatic fetch...")
-        s, w = manual_data_input()
-
-    try:
-        driver.quit()
-    except Exception:
-        pass
-
-    return s, w
 
 
 if __name__ == "__main__":
@@ -308,4 +318,6 @@ if __name__ == "__main__":
     for ptype, stats in masterData.items():
         printStats(ptype, stats[0], stats[1][0], stats[1][1], weatherLen)
 
-    input("\nPress enter to exit")
+
+
+    #input("\nPress enter to exit")
