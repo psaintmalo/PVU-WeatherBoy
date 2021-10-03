@@ -1,14 +1,22 @@
 from enum import Enum
+from time import sleep
 import datetime
 
 AUTO_ENABLED = True
 
+def setDriver():
+    # Set up the driver to use headless chrome
+    options = Options()
+    options.headless = True
+    driver = webdriver.Chrome(options=options)
+    return driver
+
 try:
-    import requests
-    import json
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
 except ImportError as e:
     AUTO_ENABLED = False
-    print("\nPlease ensure the requests python package is installed in order to use the automatic weather fetcher\n")
+    print("\nPlease ensure the selenium python package is installed in order to use the automatic weather fetcher\n")
 
 
 def effects(metal=0.0, dark=0.0, light=0.0, water=0.0, ice=0.0, wind=0.0, electro=0.0, fire=0.0, parasite=0.0):
@@ -40,8 +48,13 @@ class Weather(Enum):
     EARTHQUAKE = 6
     MALARIA = 7
     FLOOD = 8
+
     MOONLIGHT = 9
+    MOON_LIGHT = 9
+
     HEATWAVE = 10
+    HEAT_WAVE = 10
+
     PROTON_STORM = 11
     HURRICANES = 12
     RAINY = 13
@@ -153,6 +166,10 @@ masterWeather = {Season.SPRING: springSeason, Season.SUMMER: summerSeason, Seaso
                  Season.WINTER: winterSeason}
 
 
+def clean_name(name):
+    return name.strip().upper().replace(" ", "_")
+
+
 def get_possible_weather(season, cooldown):
     result = []
 
@@ -235,8 +252,8 @@ def manual_data_input():
         exit("Invalid season. Season can be: Spring, Summer, Autumn or Winter")
 
     try:
-        manWeatherYesterday = Weather[input("Enter yesterdays weather: ").strip().upper()]
-        manWeatherToday = Weather[input("Enter todays weather: ").strip().replace(" ", "_").upper()]
+        manWeatherYesterday = Weather[clean_name(input("Enter yesterdays weather: "))]
+        manWeatherToday = Weather[clean_name(input("Enter todays weather: "))]
     except KeyError:
         exit("Invalid weather name. If unsure about yesterdays weather, use \"null\"")
 
@@ -246,16 +263,29 @@ def manual_data_input():
 
 
 def auto_data_scraper():
-    page = requests.get("https://pvuextratools.com/4.9b97a2ecc710b1f9e59c.js")
-    content = page.text.split("FyW3:function(t){t.exports=JSON.parse('")[1][:-7]
+    try:
+        print("Starting driver")
+        driver = setDriver()
+        print("Fetching data")
+        driver.get("https://pvuextratools.com/")
+        #sleep(1)
+        events = driver.find_elements_by_css_selector("p.event")
+        w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
+             Weather[clean_name(events[1].get_attribute("textContent")[7:])])
 
-    dataJson = json.loads(content)
+        seasons = driver.find_elements_by_css_selector("p.season")
+        s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
 
-    autoSeason = Season[dataJson["tomorrowSeason"].upper()]
-    oldWeather = (Weather[dataJson["yesterdayEvent"].upper().replace(" ", "_")],
-                  Weather[dataJson["todayEvent"].upper().replace(" ", "_")])
+    except Exception:
+        print("Something went wrong with the automatic fetch...")
+        s, w = manual_data_input()
 
-    return autoSeason, oldWeather
+    try:
+        driver.quit()
+    except Exception:
+        pass
+
+    return s, w
 
 
 if __name__ == "__main__":
