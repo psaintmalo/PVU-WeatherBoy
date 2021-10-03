@@ -1,8 +1,8 @@
+AUTO_ENABLED = True
+
 from enum import Enum
 from time import sleep
 import datetime
-
-AUTO_ENABLED = True
 
 def setDriver():
     # Set up the driver to use headless chrome
@@ -11,12 +11,13 @@ def setDriver():
     driver = webdriver.Chrome(options=options)
     return driver
 
-try:
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-except ImportError as e:
-    AUTO_ENABLED = False
-    print("\nPlease ensure the selenium python package is installed in order to use the automatic weather fetcher\n")
+if AUTO_ENABLED:
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+    except ImportError as e:
+        AUTO_ENABLED = False
+        print("\nPlease ensure the selenium python package is installed in order to use the automatic weather fetcher\n")
 
 
 def effects(metal=0.0, dark=0.0, light=0.0, water=0.0, ice=0.0, wind=0.0, electro=0.0, fire=0.0, parasite=0.0):
@@ -82,11 +83,11 @@ weatherCloudy = effects(light=-0.1, wind=-0.5)
 
 weatherIronRain = effects(metal=1.2, water=0.4)
 
-weatherColdWave = effects(ice=1.2, fire=-0.4)
+weatherColdWave = effects(ice=1.2, fire=-0.6)  # fire -0.6 or -0.4??? Discord says -0.6
 
 weatherLocustSwarm = effects(parasite=1.0)
 
-weatherCoronaMassEjection = effects(light=1.2, fire=0.4)
+weatherCoronaMassEjection = effects(light=1.0, fire=0.4)  # light 1.0 or 1.2??? Discord says 1.0
 
 weatherMagneticReconnection = effects(metal=0.5, electro=0.5)
 
@@ -98,7 +99,8 @@ weatherFlood = effects(metal=-1.0, water=1.0)
 
 weatherMoonlight = effects(dark=4.0)
 
-weatherHeatwave = effects(dark=0.1, light=0.2, water=-0.3, ice=-0.6)
+# weatherHeatwave = effects(dark=0.1, light=0.2, water=-0.3, ice=-0.6)  # Actual in game weather below
+weatherHeatwave = effects(metal=0.1, light=0.2, fire=1.0, water=-0.3, ice=-0.6)
 
 weatherProtonStorm = effects(light=2.0)
 
@@ -126,7 +128,7 @@ weatherSunny = effects(water=-0.3, fire=0.6)
 
 weatherWinterStorm = effects(light=-0.2, ice=0.6, wind=0.1, electro=0.5, fire=-0.4)
 
-weatherThunderStorm = effects(metal=-0.2, dark=1.0, wind=-0.2, water=0.1, electro=1.0)
+weatherThunderStorm = effects(metal=-0.2, dark=1.0, light=-0.2, water=0.1, electro=1.0)
 
 springSeason = {Weather.CLOUDY: weatherCloudy, Weather.EARTHQUAKE: weatherEarthquake,
                 Weather.HURRICANES: weatherHurricanes, Weather.IRON_RAIN: weatherIronRain,
@@ -170,23 +172,24 @@ def clean_name(name):
     return name.strip().upper().replace(" ", "_")
 
 
-def get_possible_weather(season, cooldown):
+def get_possible_weather(s, c):
+    enumResult = []
     result = []
 
-    for wEnum, weather in masterWeather.get(season).items():
-        if wEnum in cooldown:
+    for wEnum, weather in masterWeather.get(s).items():
+        if wEnum in c:
             continue
-
+        enumResult.append(wEnum)
         result.append(weather)
 
-    return result
+    return enumResult, result
 
 
-def get_relevant(weatherList, type):
+def get_relevant(wL, type):
     positiveImpact = []
     negativeImpact = []
 
-    for w in weatherList:
+    for w in wL:
         impact = w.get(type)
         if impact > 0.0:
             positiveImpact.append(impact)
@@ -196,24 +199,24 @@ def get_relevant(weatherList, type):
     return positiveImpact, negativeImpact
 
 
-def avg_impact(weatherList, type):
+def avg_impact(wL, type):
     avg = 0.0
-    size = len(weatherList)
+    size = len(wL)
 
-    for weather in weatherList:
+    for weather in wL:
         effect = weather.get(type)
         avg += effect/size
 
     return avg
 
 
-def all_impact_stats(weatherList):
+def all_impact_stats(wL):
 
     result = {}
 
     for type in PlantType:
-        posImpact, negImpact = get_relevant(weatherList, type)
-        avgImpact = avg_impact(weatherList, type)
+        posImpact, negImpact = get_relevant(wL, type)
+        avgImpact = avg_impact(wL, type)
         result[type] = [avgImpact, (posImpact, negImpact)]
 
     return result
@@ -255,7 +258,7 @@ def manual_data_input():
         manWeatherYesterday = Weather[clean_name(input("Enter yesterdays weather: "))]
         manWeatherToday = Weather[clean_name(input("Enter todays weather: "))]
     except KeyError:
-        exit("Invalid weather name. If unsure about yesterdays weather, use \"null\"")
+        exit("Invalid weather name. If unsure about weather, use \"null\"")
 
     oldWeather = (manWeatherYesterday, manWeatherToday)
 
@@ -269,11 +272,11 @@ def auto_data_scraper():
         print("Fetching data")
         driver.get("https://pvuextratools.com/")
         #sleep(1)
-        events = driver.find_elements_by_css_selector("p.event")
+        events = driver.find_elements_by_class_name("event")
         w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
              Weather[clean_name(events[1].get_attribute("textContent")[7:])])
 
-        seasons = driver.find_elements_by_css_selector("p.season")
+        seasons = driver.find_elements_by_class_name("season")
         s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
 
     except Exception:
@@ -295,7 +298,7 @@ if __name__ == "__main__":
     else:
         season, weatherCooldown = manual_data_input()
 
-    weatherList = get_possible_weather(season, weatherCooldown)
+    _, weatherList = get_possible_weather(season, weatherCooldown)
     weatherLen = len(weatherList)
 
     masterData = all_impact_stats(weatherList)
@@ -304,3 +307,5 @@ if __name__ == "__main__":
 
     for ptype, stats in masterData.items():
         printStats(ptype, stats[0], stats[1][0], stats[1][1], weatherLen)
+
+    input("\nPress enter to exit")
