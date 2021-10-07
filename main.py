@@ -47,7 +47,7 @@ class Weather(Enum):
     IRON_RAIN = 1
     COLD_WAVE = 2
     LOCUSTS_SWARM = 3
-    CORONA_MASS_EJECTION = 4
+    CORONAL_MASS_EJECTION = 4
     MAGNETIC_RECONNECTION = 5
     EARTHQUAKE = 6
     MALARIA = 7
@@ -90,7 +90,7 @@ weatherColdWave = effects(ice=1.2, fire=-0.6)  # fire -0.6 or -0.4??? Discord sa
 
 weatherLocustSwarm = effects(parasite=1.0)
 
-weatherCoronaMassEjection = effects(light=1.0, fire=0.4)  # light 1.0 or 1.2??? Discord says 1.0
+weatherCoronalMassEjection = effects(light=1.0, fire=0.4)  # light 1.0 or 1.2??? Discord says 1.0
 
 weatherMagneticReconnection = effects(metal=0.5, electro=0.5)
 
@@ -140,7 +140,7 @@ springSeason = {Weather.CLOUDY: weatherCloudy, Weather.EARTHQUAKE: weatherEarthq
                 Weather.SUNNY: weatherSunny, Weather.TSUNAMI: weatherTsunami,
                 Weather.VOLCANO: weatherVolcano}
 
-summerSeason = {Weather.CLOUDY: weatherCloudy, Weather.CORONA_MASS_EJECTION: weatherCoronaMassEjection,
+summerSeason = {Weather.CLOUDY: weatherCloudy, Weather.CORONAL_MASS_EJECTION: weatherCoronalMassEjection,
                 Weather.EARTHQUAKE: weatherEarthquake, Weather.HEATWAVE: weatherHeatwave,
                 Weather.HURRICANES: weatherHurricanes, Weather.LOCUSTS_SWARM: weatherLocustSwarm,
                 Weather.MALARIA: weatherMalaria, Weather.PROTON_STORM: weatherProtonStorm,
@@ -160,7 +160,7 @@ autumnSeason = {Weather.CLOUDY: weatherCloudy, Weather.EARTHQUAKE: weatherEarthq
                 Weather.VOLCANO: weatherVolcano, Weather.WINDY: weatherWindy,
                 Weather.WINTER_STORM: weatherWinterStorm}
 
-winterSeason = {Weather.COLD_WAVE: weatherColdWave, Weather.CORONA_MASS_EJECTION: weatherCoronaMassEjection,
+winterSeason = {Weather.COLD_WAVE: weatherColdWave, Weather.CORONAL_MASS_EJECTION: weatherCoronalMassEjection,
                 Weather.EARTHQUAKE: weatherEarthquake, Weather.MAGNETIC_RECONNECTION: weatherMagneticReconnection,
                 Weather.SNOWY: weatherSnowy, Weather.SOLAR_FLARES: weatherSolarFlares,
                 Weather.SOLAR_MAXIMA: weatherSolarMaxima, Weather.VOLCANO: weatherVolcano,
