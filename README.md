@@ -9,12 +9,13 @@ The program will recommend wether to use a greenhouse in 3 different ways:
 * -Electro- (Safe) -> Average impact above `SAFETY_MARGIN`
 
 ## Settings
-If you want to disable the automatic weather fetch, open main.py with notepad or any editor and
-change the first line `AUTO_ENABLED = True` to `AUTO_ENABLED = False`, if selenium or chromedriver.exe
+If you want to disable the automatic weather fetch, open options.txt with notepad or any editor and
+change the line `AUTO_ENABLED = 1` to `AUTO_ENABLED = 0`, if selenium or chromedriver.exe
 are missing, the program will automatically ask for the data to be manually entered.
 
-The `SAFETY_MARGIN`  used to recommend a greenhouse can be edited in the second line after `AUTO_ENABLED`.
-A value of 5 means that it will recommend a greenhouse if the average impact is below 5%.
+The `SAFETY_MARGIN`  used to recommend a greenhouse can be edited in the options.txt file
+at the line `SAFETY_MARGIN = 1`.
+A value of 1 means that it will recommend a greenhouse if the average impact is below 1%.
 
 ## Required Packages:
 In order to use the automatic weather fetcher you need to have *selenium* python package installed.

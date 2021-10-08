@@ -1,0 +1,5 @@
+# Automatic weather fetch enabled, 1=ON, 0=OFF
+AUTO_ENABLED = 1
+
+# Safety margin to use. E.g. 5 = 5%. If the avg impact is below 5%, it will recomend a greenhouse
+SAFETY_MARGIN = 1

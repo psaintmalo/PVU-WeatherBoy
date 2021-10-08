@@ -1,9 +1,7 @@
-AUTO_ENABLED = True
-SAFETY_MARGIN = 5  # E.g. If average impact is below +5%, it will recommend a greenhouse.
-
 from enum import Enum
 from time import sleep
 import datetime
+import os
 
 
 def setDriver():
@@ -12,15 +10,6 @@ def setDriver():
     options.headless = True
     driver = webdriver.Chrome(options=options)
     return driver
-
-
-if AUTO_ENABLED:
-    try:
-        from selenium import webdriver
-        from selenium.webdriver.chrome.options import Options
-    except ImportError as e:
-        AUTO_ENABLED = False
-        print("\nPlease ensure the selenium python package is installed in order to use the automatic weather fetcher\n")
 
 
 def effects(metal=0.0, dark=0.0, light=0.0, water=0.0, ice=0.0, wind=0.0, electro=0.0, fire=0.0, parasite=0.0):
@@ -301,7 +290,56 @@ def printStats(ptype, avg, pos, neg, weatherLen):
     print("\n   Average Impact: {:.2f}%\n".format((avg*100)))
 
 
+def loadSettings(file_location):
+    result = {}
+
+    with open(file_location, "r") as file:
+
+        for line in file:
+
+            if line.strip() == "":
+                pass
+            elif line[0].strip() == "#":
+                pass
+            else:
+                fields = line.split("=")
+                fields = list(map(lambda field: field.strip(), fields))
+                if len(fields) != 2:
+                    pass
+                else:
+                    result[fields[0]] = fields[1]
+
+    return result
+
+
 if __name__ == "__main__":
+
+    options_filename = "options.txt"
+
+    AUTO_ENABLED = False
+    SAFETY_MARGIN = 0
+
+    if not os.path.isfile(options_filename):
+        print("Options file not found. Auto weather fetch wont work. Default safety margin = 1.")
+    else:
+        settings = loadSettings(options_filename)
+
+        if settings["AUTO_ENABLED"] == "1":
+            AUTO_ENABLED = True
+
+        if isinstance(settings["SAFETY_MARGIN"], int):
+            num = int(settings["SAFETY_MARGIN"])
+            if 100 > num > -100:
+                SAFETY_MARGIN = num
+
+    if AUTO_ENABLED:
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.options import Options
+        except ImportError as e:
+            AUTO_ENABLED = False
+            print("\nPlease ensure the selenium python package is installed and the driver is present in order to use "
+                  "the automatic weather fetcher\n")
 
     if AUTO_ENABLED:
         season, weatherCooldown = auto_data_scraper()
@@ -312,12 +350,32 @@ if __name__ == "__main__":
     weatherLen = len(weatherList)
 
     masterData = all_impact_stats(weatherList)
+    catBreakdown = {"safe": [], "safety_margin": [], "unsafe": []}
 
     print("\n\nTomorrows Weather Prediction:\n")
 
     for ptype, stats in masterData.items():
+
+        if stats[0] > SAFETY_MARGIN:
+            catBreakdown["safe"].append(ptype)
+        elif stats[0] < 0:
+            catBreakdown["unsafe"].append(ptype)
+        else:
+            catBreakdown["safety_margin"].append(ptype)
+
         printStats(ptype, stats[0], stats[1][0], stats[1][1], weatherLen)
 
+    print("Summary:")
+    print("Safe: ", end="")
+    for ptype in catBreakdown["safe"]:
+        print(ptype.name.title(), end="  ")
 
+    print("\nUnder Safety Margin: ", end="")
+    for ptype in catBreakdown["safety_margin"]:
+        print(ptype.name.title(), end="  ")
 
-    input("\nPress enter to exit")
+    print("\nUnsafe: ", end="")
+    for ptype in catBreakdown["unsafe"]:
+        print(ptype.name.title(), end="  ")
+
+    input("\n\nPress enter to exit")
