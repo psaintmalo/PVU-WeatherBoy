@@ -32,14 +32,28 @@ class PlantType(Enum):
 
 class Weather(Enum):
     NULL = -1
+
     CLOUDY = 0
+
     IRON_RAIN = 1
+    IRONRAIN = 1
+
     COLD_WAVE = 2
+    COLDWAVE = 2
+
     LOCUSTS_SWARM = 3
+    LOCUSTSWARM = 3
+
     CORONAL_MASS_EJECTION = 4
+    CORONALMASSEJECTION = 4
+
     MAGNETIC_RECONNECTION = 5
+    MAGNETICRECONNECTION = 5
+
     EARTHQUAKE = 6
+
     MALARIA = 7
+
     FLOOD = 8
 
     MOONLIGHT = 9
@@ -49,19 +63,36 @@ class Weather(Enum):
     HEAT_WAVE = 10
 
     PROTON_STORM = 11
+    PROTONSTORM = 11
+
     HURRICANES = 12
     RAINY = 13
+
     RATS_SWARM = 14
+    RATSSWAM = 14
+
     TORNADO = 15
+
     SNOWY = 16
+
     TSUNAMI = 17
+
     SOLAR_FLARES = 18
+    SOLARFLARES = 18
+
     VOLCANO = 19
+
     SOLAR_MAXIMA = 20
+    SOLARMAXIMA = 20
+
     WINDY = 21
     SUNNY = 22
+
     WINTER_STORM = 23
+    WINTERSTORM = 23
+
     THUNDER_STORM = 24
+    THUNDERSTORM = 24
 
 
 class Season(Enum):
@@ -192,6 +223,9 @@ def auto_data_scraper():
         seasons = driver.find_elements_by_class_name("season")
         s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
 
+        tomorrowsDate = driver.find_elements_by_class_name("card-date")
+        print("Predicting day: " + tomorrowsDate[2].get_attribute("textContent"))
+
     except Exception:
         print("Something went wrong with the automatic fetch...")
         s, w = manual_data_input()
@@ -199,7 +233,7 @@ def auto_data_scraper():
     try:
         driver.quit()
     except Exception:
-        pass
+        raise e
 
     return s, w
 
