@@ -1,12 +1,13 @@
 # PVU-WeatherBoy
- Predict the probability of weather affecting your plants in PVU (PlantVSUndead)
-
-If unsure about the weather, use *NULL* when asked for it.
+ Calculator to predict the probability of weather affecting your plants in Plant vs Undead (Plantvsundead | PVU)
 
 The program will recommend wether to use a greenhouse in 3 different ways:
 * -Electro- (! Greenhouse !) -> Average impact is negative
 * -Electro- (Safety Greenhouse) -> Recommends a greenhouse based on `SAFETY_MARGIN`
 * -Electro- (Safe) -> Average impact above `SAFETY_MARGIN`
+
+If auto fetch is disabled, and you are unsure of the previous weathers, you can use *NULL*.
+The Season is currently required.
 
 ## Settings
 If you want to disable the automatic weather fetch, open options.txt with notepad or any editor and
@@ -31,4 +32,4 @@ and place it inside the PVU-WeatherBoy folder.
 * Display the average of all possible weather effects
 * Automatically fetch the weather data if possible
 * Recommend using a greenhouse depending on the average impact and a safety margin
-
+* Show a summary of all recommendation towards the plant types

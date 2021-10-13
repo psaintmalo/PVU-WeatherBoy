@@ -8,6 +8,7 @@ def setDriver():
     # Set up the driver to use headless chrome
     options = Options()
     options.headless = True
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options)
     return driver
 
@@ -214,7 +215,7 @@ def auto_data_scraper():
         print("Starting driver")
         driver = setDriver()
         print("Fetching data")
-        driver.get("https://pvuextratools.com/")
+        driver.get("https://pvuextratools.com/en/weather/forecast")
         #sleep(1)
         events = driver.find_elements_by_class_name("event")
         w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
