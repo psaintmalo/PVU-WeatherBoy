@@ -33,3 +33,81 @@ and place it inside the PVU-WeatherBoy folder.
 * Automatically fetch the weather data if possible
 * Recommend using a greenhouse depending on the average impact and a safety margin
 * Show a summary of all recommendation towards the plant types
+* Sort output by most to least effected
+
+## Sample of output
+```
+Starting driver
+Fetching data
+Predicting day: 10/14/2021
+
+
+Tomorrows Weather Prediction:
+
+- Dark - (Safe) 
+   Probabilities: (+)33.33%, (-)0.00%, (~)66.67%
+   Max Impact: +400% | -0%
+   Possible Buffs: +400% +100% +50% +40% +20% 
+   Average Impact: 40.67%
+
+- Parasite - (Safe) 
+   Probabilities: (+)20.00%, (-)0.00%, (~)80.00%
+   Max Impact: +100% | -0%
+   Possible Buffs: +100% +100% +100% 
+   Average Impact: 20.00%
+
+- Water - (Safe) 
+   Probabilities: (+)40.00%, (-)13.33%, (~)46.67%
+   Max Impact: +100% | -30%
+   Possible Buffs: +100% +60% +50% +40% +20% +10% 
+   Possible Debuffs: -30% -20% 
+   Average Impact: 15.33%
+
+- Electro - (Safe) 
+   Probabilities: (+)20.00%, (-)0.00%, (~)80.00%
+   Max Impact: +100% | -0%
+   Possible Buffs: +100% +50% +50% 
+   Average Impact: 13.33%
+
+- Wind - (Safe) 
+   Probabilities: (+)26.67%, (-)6.67%, (~)66.67%
+   Max Impact: +100% | -50%
+   Possible Buffs: +100% +50% +50% +50% 
+   Possible Debuffs: -50% 
+   Average Impact: 13.33%
+
+- Metal - (Safe) 
+   Probabilities: (+)20.00%, (-)20.00%, (~)60.00%
+   Max Impact: +120% | -60%
+   Possible Buffs: +120% +100% +40% 
+   Possible Debuffs: -60% -30% -20% 
+   Average Impact: 10.00%
+
+- Fire - (Safe) 
+   Probabilities: (+)13.33%, (-)20.00%, (~)66.67%
+   Max Impact: +100% | -40%
+   Possible Buffs: +100% +60% 
+   Possible Debuffs: -40% -40% -30% 
+   Average Impact: 3.33%
+
+- Ice - (Safe) 
+   Probabilities: (+)13.33%, (-)6.67%, (~)80.00%
+   Max Impact: +40% | -40%
+   Possible Buffs: +40% +30% 
+   Possible Debuffs: -40% 
+   Average Impact: 2.00%
+
+- Light - (! Greenhouse !) 
+   Probabilities: (+)6.67%, (-)33.33%, (~)60.00%
+   Max Impact: +20% | -40%
+   Possible Buffs: +20% 
+   Possible Debuffs: -40% -20% -20% -20% -10% 
+   Average Impact: -6.00%
+
+Summary:
+Safe: Dark (+41%)  Parasite (+20%)  Water (+15%)  Electro (+13%)  Wind (+13%)  Metal (+10%)  Fire (+3%)  Ice (+2%)  
+Under Safety Margin: 
+Unsafe: Light (-6%)  
+
+Press enter to exit
+```

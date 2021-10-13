@@ -389,28 +389,36 @@ if __name__ == "__main__":
 
     print("\n\nTomorrows Weather Prediction:\n")
 
-    for ptype, stats in masterData.items():
+    masterSorted = dict(sorted(masterData.items(), key=lambda item: item[1][0], reverse=True))
 
-        if stats[0] > SAFETY_MARGIN:
-            catBreakdown["safe"].append(ptype)
-        elif stats[0] < 0:
-            catBreakdown["unsafe"].append(ptype)
+    for ptype, stats in masterSorted.items():
+
+        avg = stats[0]
+        pTuple = (ptype, avg)
+
+        if avg > SAFETY_MARGIN:
+            catBreakdown["safe"].append(pTuple)
+        elif avg < 0:
+            catBreakdown["unsafe"].append(pTuple)
         else:
-            catBreakdown["safety_margin"].append(ptype)
+            catBreakdown["safety_margin"].append(pTuple)
 
         printStats(ptype, stats[0], stats[1][0], stats[1][1], weatherLen)
 
     print("Summary:")
     print("Safe: ", end="")
-    for ptype in catBreakdown["safe"]:
-        print(ptype.name.title(), end="  ")
+    catBreakdown["safe"]
+    for ptype, avg in catBreakdown["safe"]:
+        print("{} (+{:.0f}%)".format(ptype.name.title(), 100*avg), end="  ")
 
     print("\nUnder Safety Margin: ", end="")
-    for ptype in catBreakdown["safety_margin"]:
-        print(ptype.name.title(), end="  ")
+    for ptype, avg in catBreakdown["safety_margin"]:
+        print("{} (+{:.0f}%)".format(ptype.name.title(), 100*avg), end="  ")
+
+    catBreakdown["unsafe"] = catBreakdown["unsafe"][::-1]
 
     print("\nUnsafe: ", end="")
-    for ptype in catBreakdown["unsafe"]:
-        print(ptype.name.title(), end="  ")
+    for ptype, avg in catBreakdown["unsafe"]:
+        print("{} ({:.0f}%)".format(ptype.name.title(), 100*avg), end="  ")
 
     input("\n\nPress enter to exit")
