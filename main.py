@@ -301,7 +301,7 @@ def printStats(ptype, avg, pos, neg, weatherLen):
 
     if avg < 0:
         recText = "! Greenhouse !"
-    elif avg < 0+SAFETY_MARGIN/100:
+    elif avg < 0+SAFETY_MARGIN:
         recText = "Safety Greenhouse"
     else:
         recText = "Safe"
@@ -352,7 +352,7 @@ if __name__ == "__main__":
     options_filename = "options.txt"
 
     AUTO_ENABLED = False
-    SAFETY_MARGIN = 0
+    SAFETY_MARGIN = 5
 
     if not os.path.isfile(options_filename):
         print("Options file not found. Auto weather fetch wont work. Default safety margin = 1.")
@@ -362,10 +362,10 @@ if __name__ == "__main__":
         if settings["AUTO_ENABLED"] == "1":
             AUTO_ENABLED = True
 
-        if isinstance(settings["SAFETY_MARGIN"], int):
+        if settings["SAFETY_MARGIN"].isnumeric():
             num = int(settings["SAFETY_MARGIN"])
             if 100 > num > -100:
-                SAFETY_MARGIN = num
+                SAFETY_MARGIN = num/100
 
     if AUTO_ENABLED:
         try:
