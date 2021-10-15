@@ -420,8 +420,9 @@ if __name__ == "__main__":
 
     options_filename = "options.txt"
 
-    AUTO_ENABLED = False
+    AUTO_ENABLED = "0"
     SAFETY_MARGIN = 5
+    WAIT_EXIT = True
 
     if not os.path.isfile(options_filename):
         print("Options file not found. Auto weather fetch wont work. Default safety margin = 1.")
@@ -432,12 +433,17 @@ if __name__ == "__main__":
             AUTO_ENABLED = settings["AUTO_ENABLED"]
         else:
             print("Invalid AUTO_ENABLED mode")
-            AUTO_ENABLED = "0"
 
         if settings["SAFETY_MARGIN"].isnumeric():
             num = int(settings["SAFETY_MARGIN"])
             if 100 > num > -100:
                 SAFETY_MARGIN = num/100
+
+        if settings["WAIT_EXIT"] == "0":
+            WAIT_EXIT = False
+
+        if not settings["WAIT_EXIT"] in ["0", "1"]:
+            print("Invalid WAIT_EXIT value")
 
     if AUTO_ENABLED in ["1", "2"]:
         season, weatherCooldown = auto_data_scraper(AUTO_ENABLED)
@@ -484,4 +490,5 @@ if __name__ == "__main__":
     for ptype, avg in catBreakdown["unsafe"]:
         print("{} ({:.0f}%)".format(ptype.name.title(), 100*avg), end="  ")
 
-    input("\n\nPress enter to exit")
+    if WAIT_EXIT:
+        input("\n\nPress enter to exit")

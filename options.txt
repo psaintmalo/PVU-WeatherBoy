@@ -3,3 +3,7 @@ AUTO_ENABLED = 1
 
 # Safety margin to use between 0 and 100. E.g. 5 = 5%. If the avg impact is below 5%, it will recommend a greenhouse
 SAFETY_MARGIN = 5
+
+# Wait for enter at the end of the program. Recommended unless you are launching it from a terminal
+# 0=EXIT AUTOMATICALLY, 1=WAIT FOR ENTER
+WAIT_EXIT = 1
