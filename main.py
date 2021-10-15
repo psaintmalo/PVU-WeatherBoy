@@ -6,21 +6,6 @@ import requests
 import re
 
 
-def setDriver():
-    # Set up the driver to use headless chrome
-    options = Options()
-    options.headless = True
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(options=options)
-    return driver
-
-
-def effects(metal=0.0, dark=0.0, light=0.0, water=0.0, ice=0.0, wind=0.0, electro=0.0, fire=0.0, parasite=0.0):
-    return {PlantType.DARK: dark, PlantType.ELECTRO: electro, PlantType.FIRE: fire, PlantType.LIGHT: light,
-            PlantType.METAL: metal, PlantType.PARASITE: parasite, PlantType.WATER: water, PlantType.WIND: wind,
-            PlantType.ICE: ice}
-
-
 class PlantType(Enum):
     DARK = 0
     ELECTRO = 1
@@ -103,6 +88,12 @@ class Season(Enum):
     SUMMER = 1
     AUTUMN = 2
     WINTER = 3
+
+
+def effects(metal=0.0, dark=0.0, light=0.0, water=0.0, ice=0.0, wind=0.0, electro=0.0, fire=0.0, parasite=0.0):
+    return {PlantType.DARK: dark, PlantType.ELECTRO: electro, PlantType.FIRE: fire, PlantType.LIGHT: light,
+            PlantType.METAL: metal, PlantType.PARASITE: parasite, PlantType.WATER: water, PlantType.WIND: wind,
+            PlantType.ICE: ice}
 
 
 weatherCloudy = effects(light=-0.1, wind=-0.5)
@@ -212,8 +203,7 @@ def manual_data_input():
     return manSeason, oldWeather
 
 
-# No longer supported. Left in for reference
-def selenium_scraper():
+def setDriver():
 
     try:
         from selenium import webdriver
@@ -222,6 +212,17 @@ def selenium_scraper():
 
         exit("\nPlease ensure the selenium python package is installed and the driver is present in order to use "
              "the automatic weather fetcher\n")
+
+    # Set up the driver to use headless chrome
+    options = Options()
+    options.headless = True
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(options=options)
+    return driver
+
+
+# No longer supported. Left in for reference
+def selenium_scraper():
 
     print("Starting driver")
     driver = setDriver()
@@ -288,16 +289,19 @@ def requests_scraper():
     print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
                                             , w[1].name.title().replace("_", " ")))
 
-
     return s, w
 
 
-def auto_data_scraper():
+def auto_data_scraper(mode):
     try:
+        if mode == "1":
+            s, w = requests_scraper()
+        elif mode == "2":
+            s, w = selenium_scraper()
+        else:
+            exit("Invalid mode")
 
-        s, w = requests_scraper()
-
-    except Exception:
+    except Exception as e:
         print("Something went wrong with the automatic fetch...")
         s, w = manual_data_input()
 
@@ -424,16 +428,19 @@ if __name__ == "__main__":
     else:
         settings = loadSettings(options_filename)
 
-        if settings["AUTO_ENABLED"] == "1":
-            AUTO_ENABLED = True
+        if settings["AUTO_ENABLED"] in ["0", "1", "2"]:
+            AUTO_ENABLED = settings["AUTO_ENABLED"]
+        else:
+            print("Invalid AUTO_ENABLED mode")
+            AUTO_ENABLED = "0"
 
         if settings["SAFETY_MARGIN"].isnumeric():
             num = int(settings["SAFETY_MARGIN"])
             if 100 > num > -100:
                 SAFETY_MARGIN = num/100
 
-    if AUTO_ENABLED:
-        season, weatherCooldown = auto_data_scraper()
+    if AUTO_ENABLED in ["1", "2"]:
+        season, weatherCooldown = auto_data_scraper(AUTO_ENABLED)
     else:
         season, weatherCooldown = manual_data_input()
 

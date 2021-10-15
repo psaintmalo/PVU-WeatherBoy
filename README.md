@@ -19,8 +19,8 @@ at the line `SAFETY_MARGIN = 1`.
 A value of 1 means that it will recommend a greenhouse if the average impact is below 1%.
 
 ## Instalation
-To use this script you will need Python 3+ installed, https://www.python.org/, as well as the required packages. 
-In order to run it you can just double click `main.py`
+To use this script you will need Python 3+ installed, https://www.python.org/. 
+In order to run it you can simply double click `main.py`
 
 ## Current Features:
 * Show probability of positive, negative and neutral weather tomorrow
@@ -31,6 +31,15 @@ In order to run it you can just double click `main.py`
 * Recommend using a greenhouse depending on the average impact and a safety margin
 * Show a summary of all recommendation towards the plant types
 * Sort output by most to least effected
+
+## Using selenium (Deprecated)
+
+If you wish to use selenium instead of the requests library, then you can enable it by setting the 
+`AUTO_ENABLED` option equal to 2. You will also have to install the selenium package (`pip install selenium`)
+download `chromedriver.exe`, which can be found here:
+https://sites.google.com/chromium.org/driver/, and place it in the PVU-WeatherBoy folder.
+This method is slower and will most probably stop working as it may not be mantained.
+
 
 ## Sample of output
 ```
