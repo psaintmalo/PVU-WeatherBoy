@@ -11,23 +11,16 @@ The Season is currently required.
 
 ## Settings
 If you want to disable the automatic weather fetch, open options.txt with notepad or any editor and
-change the line `AUTO_ENABLED = 1` to `AUTO_ENABLED = 0`, if selenium or chromedriver.exe
-are missing, the program will automatically ask for the data to be manually entered.
+change the line `AUTO_ENABLED = 1` to `AUTO_ENABLED = 0`, if there is no internet or the fetch fails
+, the program will automatically ask for the data to be manually entered.
 
 The `SAFETY_MARGIN`  used to recommend a greenhouse can be edited in the options.txt file
 at the line `SAFETY_MARGIN = 1`.
 A value of 1 means that it will recommend a greenhouse if the average impact is below 1%.
 
 ## Instalation
-To use this script you will need Python 3+ installed, https://www.python.org/, as well as the required packages. In order to run it
-you can just double click `main.py`
-
-## Required Packages:
-In order to use the automatic weather fetcher you need to have *selenium* python package installed.
-If it is not installed then you will be prompted to enter the weather manually. For ease of use I 
-have included chromedriver.exe, if you dont feel comfortable, feel free to delete the one included 
-and get chromedriver.exe from the official website: https://sites.google.com/chromium.org/driver/,
-and place it inside the PVU-WeatherBoy folder.
+To use this script you will need Python 3+ installed, https://www.python.org/, as well as the required packages. 
+In order to run it you can just double click `main.py`
 
 ## Current Features:
 * Show probability of positive, negative and neutral weather tomorrow
@@ -41,7 +34,6 @@ and place it inside the PVU-WeatherBoy folder.
 
 ## Sample of output
 ```
-Starting driver
 Fetching data
 
 Predicting day: 10/10/2021

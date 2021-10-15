@@ -2,6 +2,8 @@ from enum import Enum
 from time import sleep
 import datetime
 import os
+import requests
+import re
 
 
 def setDriver():
@@ -210,34 +212,94 @@ def manual_data_input():
     return manSeason, oldWeather
 
 
+# No longer supported. Left in for reference
+def selenium_scraper():
+
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+    except ImportError as e:
+
+        exit("\nPlease ensure the selenium python package is installed and the driver is present in order to use "
+             "the automatic weather fetcher\n")
+
+    print("Starting driver")
+    driver = setDriver()
+    print("Fetching data")
+    driver.get("https://pvuextratools.com/en/weather/forecast")
+    # sleep(1)
+    events = driver.find_elements_by_class_name("event")
+    w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
+         Weather[clean_name(events[1].get_attribute("textContent")[7:])])
+
+    seasons = driver.find_elements_by_class_name("season")
+    s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
+
+    tomorrowsDate = driver.find_elements_by_class_name("card-date")
+    print("\nPredicting day: " + tomorrowsDate[2].get_attribute("textContent"))
+    print("Tomorrows Season: " + s.name.title())
+    print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
+                                            , w[1].name.title().replace("_", " ")))
+
+    try:
+        driver.quit()
+    except Exception as e:
+        raise e
+
+    return s, w
+
+
+def requests_scraper():
+
+    print("Fetching data")
+
+    base_url = "https://pvuextratools.com/"
+
+    skeleton_r = requests.get(base_url + "en/weather/forecast")
+    skeleton_text = skeleton_r.text
+
+    runtime_url = re.search(r"(?<=<script src=\")(runtime.)[a-zA-Z0-9.]+(?=\" defer><\/script>)",
+                            skeleton_text).group(0)
+
+    runtime_r = requests.get(base_url + runtime_url)
+    runtime_text = runtime_r.text
+
+    runtime_regex_groups = re.search(r"(?<=\+{)([0-9]{1})(:\")([a-z0-9]*)", runtime_text)
+    stats_url = "{}.{}.js".format(runtime_regex_groups.group(1), runtime_regex_groups.group(3))
+
+    stats_r = requests.get(base_url + stats_url)
+    stats_text = stats_r.text
+
+    yesterday_event_text = re.search(r"yesterdayEvent\":\"([A-Za-z ]+)", stats_text).group(1)
+    yesterday_event = Weather[clean_name(yesterday_event_text)]
+
+    today_event_text = re.search(r"todayEvent\":\"([A-Za-z ]+)", stats_text).group(1)
+    today_event = Weather[clean_name(today_event_text)]
+
+    w = (yesterday_event, today_event)
+
+    season_text = re.search(r"tomorrowSeason\":\"([A-Z][a-z]+)", stats_text).group(1)
+    s = Season[clean_name(season_text)]
+
+    tomorrow_date = re.search(r"tomorrowDate\":\"([0-9\/]+)", stats_text).group(1)
+
+    print("\nPredicting day: " + tomorrow_date)
+    print("Tomorrows Season: " + s.name.title())
+    print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
+                                            , w[1].name.title().replace("_", " ")))
+
+
+    return s, w
+
+
 def auto_data_scraper():
     try:
-        print("Starting driver")
-        driver = setDriver()
-        print("Fetching data")
-        driver.get("https://pvuextratools.com/en/weather/forecast")
-        #sleep(1)
-        events = driver.find_elements_by_class_name("event")
-        w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
-             Weather[clean_name(events[1].get_attribute("textContent")[7:])])
 
-        seasons = driver.find_elements_by_class_name("season")
-        s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
-
-        tomorrowsDate = driver.find_elements_by_class_name("card-date")
-        print("\nPredicting day: " + tomorrowsDate[2].get_attribute("textContent"))
-        print("Tomorrows Season: " + s.name.title())
-        print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
-                                                , w[1].name.title().replace("_", " ")))
+        s, w = requests_scraper()
 
     except Exception:
         print("Something went wrong with the automatic fetch...")
         s, w = manual_data_input()
-
-    try:
-        driver.quit()
-    except Exception:
-        raise e
 
     return s, w
 
@@ -369,15 +431,6 @@ if __name__ == "__main__":
             num = int(settings["SAFETY_MARGIN"])
             if 100 > num > -100:
                 SAFETY_MARGIN = num/100
-
-    if AUTO_ENABLED:
-        try:
-            from selenium import webdriver
-            from selenium.webdriver.chrome.options import Options
-        except ImportError as e:
-            AUTO_ENABLED = False
-            print("\nPlease ensure the selenium python package is installed and the driver is present in order to use "
-                  "the automatic weather fetcher\n")
 
     if AUTO_ENABLED:
         season, weatherCooldown = auto_data_scraper()
