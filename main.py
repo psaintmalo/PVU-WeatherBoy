@@ -225,7 +225,10 @@ def auto_data_scraper():
         s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
 
         tomorrowsDate = driver.find_elements_by_class_name("card-date")
-        print("Predicting day: " + tomorrowsDate[2].get_attribute("textContent"))
+        print("\nPredicting day: " + tomorrowsDate[2].get_attribute("textContent"))
+        print("Tomorrows Season: " + s.name.title())
+        print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
+                                                , w[1].name.title().replace("_", " ")))
 
     except Exception:
         print("Something went wrong with the automatic fetch...")

@@ -18,6 +18,10 @@ The `SAFETY_MARGIN`  used to recommend a greenhouse can be edited in the options
 at the line `SAFETY_MARGIN = 1`.
 A value of 1 means that it will recommend a greenhouse if the average impact is below 1%.
 
+## Instalation
+To use this script you will need Python 3+ installed, https://www.python.org/, as well as the required packages. In order to run it
+you can just double click `main.py`
+
 ## Required Packages:
 In order to use the automatic weather fetcher you need to have *selenium* python package installed.
 If it is not installed then you will be prompted to enter the weather manually. For ease of use I 
@@ -39,7 +43,10 @@ and place it inside the PVU-WeatherBoy folder.
 ```
 Starting driver
 Fetching data
-Predicting day: 10/14/2021
+
+Predicting day: 10/10/2021
+Tomorrows Season: Autumn
+Previous weather: Thunder Storm, Locusts Swarm
 
 
 Tomorrows Weather Prediction:
@@ -105,8 +112,8 @@ Tomorrows Weather Prediction:
    Average Impact: -6.00%
 
 Summary:
-Safe: Dark (+41%)  Parasite (+20%)  Water (+15%)  Electro (+13%)  Wind (+13%)  Metal (+10%)  Fire (+3%)  Ice (+2%)  
-Under Safety Margin: 
+Safe: Dark (+41%)  Parasite (+20%)  Water (+15%)  Electro (+13%)  Wind (+13%)  Metal (+10%)  
+Under Safety Margin: Fire (+3%)  Ice (+2%)  
 Unsafe: Light (-6%)  
 
 Press enter to exit
