@@ -121,7 +121,7 @@ weatherHeatwave = effects(metal=0.1, light=0.2, fire=1.0, water=-0.3, ice=-0.6)
 
 weatherProtonStorm = effects(light=2.0)
 
-weatherHurricanes = effects(dark=0.4, light=-0.2, water=0.5, ice=0.4, wind=0.5, electro=0.5, fire=-0.4)
+weatherHurricanes = effects(dark=0.4, light=-0.2, water=0.5, ice=0.4, wind=0.4, electro=0.4, fire=-0.4)
 
 weatherRainy = effects(metal=-0.3, water=1.0, fire=-0.3)
 
@@ -187,20 +187,35 @@ masterWeather = {Season.SPRING: springSeason, Season.SUMMER: summerSeason, Seaso
 
 def manual_data_input():
 
-    try:
-        manSeason = Season[input("Enter current season: ").upper()]
-    except KeyError:
-        exit("Invalid season. Season can be: Spring, Summer, Autumn or Winter")
+    season_input = input("Enter current season: ")
+    s = Season["SUMMER"]
 
     try:
-        manWeatherYesterday = Weather[clean_name(input("Enter yesterdays weather: "))]
-        manWeatherToday = Weather[clean_name(input("Enter todays weather: "))]
+        s = Season[clean_name(season_input)]
     except KeyError:
+
+        if LOG_ERRORS:
+            raise e
+
+        exit("Invalid season. Valid season are: Spring, Summer, Autumn and Winter")
+
+    weather_yesterday = Weather["NULL"]
+    weather_today = Weather["NULL"]
+
+    try:
+        weather_yesterday_input = input("Enter yesterday's weather: ")
+        weather_yesterday = Weather[clean_name(weather_yesterday_input)]
+
+        weather_today_input = input("Enter today's weather: ")
+        weather_today = Weather[clean_name(weather_today_input)]
+    except KeyError:
+
+        if LOG_ERRORS:
+            raise e
+
         exit("Invalid weather name. If unsure about weather, use \"null\"")
 
-    oldWeather = (manWeatherYesterday, manWeatherToday)
-
-    return manSeason, oldWeather
+    return s, (weather_yesterday, weather_today)
 
 
 def setDriver():
@@ -208,17 +223,21 @@ def setDriver():
     try:
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
+
+        # Set up the driver to use headless chrome
+        options = Options()
+        options.headless = True
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        driver = webdriver.Chrome(options=options)
+        return driver
+
     except ImportError as e:
+
+        if LOG_ERRORS:
+            raise e
 
         exit("\nPlease ensure the selenium python package is installed and the driver is present in order to use "
              "the automatic weather fetcher\n")
-
-    # Set up the driver to use headless chrome
-    options = Options()
-    options.headless = True
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(options=options)
-    return driver
 
 
 # No longer supported. Left in for reference
@@ -245,7 +264,11 @@ def selenium_scraper():
     try:
         driver.quit()
     except Exception as e:
-        raise e
+
+        if LOG_ERRORS:
+            raise e
+
+        exit("Error while closing the driver")
 
     return s, w
 
@@ -302,6 +325,10 @@ def auto_data_scraper(mode):
             exit("Invalid mode")
 
     except Exception as e:
+
+        if LOG_ERRORS:
+            raise e
+
         print("Something went wrong with the automatic fetch...")
         s, w = manual_data_input()
 
@@ -423,10 +450,14 @@ if __name__ == "__main__":
 
     options_filename = "options.txt"
 
+    # Default settings values
     AUTO_ENABLED = "1"
     SAFETY_MARGIN = 5
     WAIT_EXIT = True
+    global LOG_ERRORS
+    LOG_ERRORS = False
 
+    # Try to load the settings
     if not os.path.isfile(options_filename):
         print("Options file not found. Attempting auto fetch. Default safety margin = 5")
     else:
@@ -442,16 +473,21 @@ if __name__ == "__main__":
             if 100 > num > -100:
                 SAFETY_MARGIN = num/100
             else:
-                print("Invalid SAFETY_MARGIN value")
+                print("SAFETY_MARGIN should be between 100 and -100")
         else:
             print("Invalid SAFETY_MARGIN value")
 
         if settings["WAIT_EXIT"] == "0":
             WAIT_EXIT = False
-
-        if not settings["WAIT_EXIT"] in ["0", "1"]:
+        elif not settings["WAIT_EXIT"] in ["0", "1"]:
             print("Invalid WAIT_EXIT value")
 
+        if settings["LOG_ERRORS"] == "1":
+            LOG_ERRORS = True
+        elif not settings["LOG_ERRORS"] in ["0", "1"]:
+            print("Invalid LOG_ERRORS mode")
+
+    # Use the appropriate data input method
     if AUTO_ENABLED in ["1", "2"]:
         season, weatherCooldown = auto_data_scraper(AUTO_ENABLED)
     else:
