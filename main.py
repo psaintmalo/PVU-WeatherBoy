@@ -6,6 +6,10 @@ import requests
 import re
 
 
+LOG_ERRORS = False
+base_url = "https://pvuextratools.com/"
+forecast_url = "en/weather/forecast"
+
 class PlantType(Enum):
     DARK = 0
     ELECTRO = 1
@@ -192,7 +196,7 @@ def manual_data_input():
 
     try:
         s = Season[clean_name(season_input)]
-    except KeyError:
+    except KeyError as e:
 
         if LOG_ERRORS:
             raise e
@@ -208,7 +212,7 @@ def manual_data_input():
 
         weather_today_input = input("Enter today's weather: ")
         weather_today = Weather[clean_name(weather_today_input)]
-    except KeyError:
+    except KeyError as e:
 
         if LOG_ERRORS:
             raise e
@@ -246,7 +250,7 @@ def selenium_scraper():
     print("Starting driver")
     driver = setDriver()
     print("Fetching data")
-    driver.get("https://pvuextratools.com/en/weather/forecast")
+    driver.get(base_url + forecast_url)
     # sleep(1)
     events = driver.find_elements_by_class_name("event")
     w = (Weather[clean_name(events[0].get_attribute("textContent")[7:])],
@@ -255,8 +259,8 @@ def selenium_scraper():
     seasons = driver.find_elements_by_class_name("season")
     s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
 
-    tomorrowsDate = driver.find_elements_by_class_name("card-date")
-    print("\nPredicting day: " + tomorrowsDate[2].get_attribute("textContent"))
+    dated = driver.find_elements_by_class_name("card-date")
+    print("\nPredicting day: " + dates[2].get_attribute("textContent"))
     print("Tomorrows Season: " + s.name.title())
     print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
                                             , w[1].name.title().replace("_", " ")))
@@ -277,35 +281,36 @@ def requests_scraper():
 
     print("Fetching data")
 
-    base_url = "https://pvuextratools.com/"
+    find_runtime_regex = r"(?<=<script src=\")(runtime.)[a-zA-Z0-9]{20}(.js)(?=\" defer><\/script>)"
+    find_stats_regex = r"(?<={)([0-9]{1})(:\")([a-z0-9]{20})(?=\"})"
+    base_stats_regex = r"(?<={}\":\")([0-9A-Za-z\/ ]+)(?=\",)"
 
-    skeleton_r = requests.get(base_url + "en/weather/forecast")
+    skeleton_r = requests.get(base_url + forecast_url)
     skeleton_text = skeleton_r.text
 
-    runtime_url = re.search(r"(?<=<script src=\")(runtime.)[a-zA-Z0-9.]+(?=\" defer><\/script>)",
-                            skeleton_text).group(0)
+    runtime_url = re.search(find_runtime_regex, skeleton_text).group(0)
 
     runtime_r = requests.get(base_url + runtime_url)
     runtime_text = runtime_r.text
 
-    runtime_regex_groups = re.search(r"(?<=\+{)([0-9]{1})(:\")([a-z0-9]*)", runtime_text)
+    runtime_regex_groups = re.search(find_stats_regex, runtime_text)
     stats_url = "{}.{}.js".format(runtime_regex_groups.group(1), runtime_regex_groups.group(3))
 
     stats_r = requests.get(base_url + stats_url)
     stats_text = stats_r.text
 
-    yesterday_event_text = re.search(r"yesterdayEvent\":\"([A-Za-z ]+)", stats_text).group(1)
+    yesterday_event_text = re.search(base_stats_regex.format("yesterdayEvent"), stats_text).group(1)
     yesterday_event = Weather[clean_name(yesterday_event_text)]
 
-    today_event_text = re.search(r"todayEvent\":\"([A-Za-z ]+)", stats_text).group(1)
+    today_event_text = re.search(base_stats_regex.format("todayEvent"), stats_text).group(1)
     today_event = Weather[clean_name(today_event_text)]
 
     w = (yesterday_event, today_event)
 
-    season_text = re.search(r"tomorrowSeason\":\"([A-Z][a-z]+)", stats_text).group(1)
+    season_text = re.search(base_stats_regex.format("tomorrowSeason"), stats_text).group(1)
     s = Season[clean_name(season_text)]
 
-    tomorrow_date = re.search(r"tomorrowDate\":\"([0-9\/]+)", stats_text).group(1)
+    tomorrow_date = re.search(base_stats_regex.format("tomorrowDate"), stats_text).group(1)
 
     print("\nPredicting day: " + tomorrow_date)
     print("Tomorrows Season: " + s.name.title())
@@ -454,8 +459,6 @@ if __name__ == "__main__":
     AUTO_ENABLED = "1"
     SAFETY_MARGIN = 5
     WAIT_EXIT = True
-    global LOG_ERRORS
-    LOG_ERRORS = False
 
     # Try to load the settings
     if not os.path.isfile(options_filename):

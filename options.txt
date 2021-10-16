@@ -6,7 +6,7 @@ SAFETY_MARGIN = 5
 
 # Wait for enter at the end of the program. Recommended unless you are launching it from a terminal
 # 0=EXIT AUTOMATICALLY, 1=WAIT FOR ENTER
-WAIT_EXIT = 1
+WAIT_EXIT = 0
 
 # Throw error messages. 0=OFF, 1=ON
-LOG_ERRORS = 0
+LOG_ERRORS = 1
