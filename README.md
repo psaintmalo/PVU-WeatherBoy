@@ -5,6 +5,7 @@ The program will recommend wether to use a greenhouse in 3 different ways:
 * -Electro- (! Greenhouse !) -> Average impact is negative
 * -Electro- (Safety Greenhouse) -> Recommends a greenhouse based on `SAFETY_MARGIN`
 * -Electro- (Safe) -> Average impact above `SAFETY_MARGIN`
+* -Electro- (No Bad Weather - Safe) -> No weather with a negative impact possible for the next day
 
 If auto fetch is disabled, and you are unsure of the previous weathers, you can use *NULL*.
 The Season is currently required.
@@ -30,7 +31,7 @@ In order to run it you can simply double click `main.py`
 * Automatically fetch the weather data if possible
 * Recommend using a greenhouse depending on the average impact and a safety margin
 * Show a summary of all recommendation towards the plant types
-* Sort output by most to least effected
+* Sort output by most to the least effected
 
 ## Using selenium (Deprecated)
 
@@ -45,65 +46,12 @@ This method is slower and will most probably stop working as it may not be manta
 ```
 Fetching data
 
-Predicting day: 10/10/2021
-Tomorrows Season: Autumn
-Previous weather: Thunder Storm, Locusts Swarm
+Predicting day: 10/17/2021
+Tomorrows Season: Winter
+Previous weather: Locusts Swarm, Hurricanes
 
 
 Tomorrows Weather Prediction:
-
-- Dark - (Safe) 
-   Probabilities: (+)33.33%, (-)0.00%, (~)66.67%
-   Max Impact: +400% | -0%
-   Possible Buffs: +400% +100% +50% +40% +20% 
-   Average Impact: 40.67%
-
-- Parasite - (Safe) 
-   Probabilities: (+)20.00%, (-)0.00%, (~)80.00%
-   Max Impact: +100% | -0%
-   Possible Buffs: +100% +100% +100% 
-   Average Impact: 20.00%
-
-- Water - (Safe) 
-   Probabilities: (+)40.00%, (-)13.33%, (~)46.67%
-   Max Impact: +100% | -30%
-   Possible Buffs: +100% +60% +50% +40% +20% +10% 
-   Possible Debuffs: -30% -20% 
-   Average Impact: 15.33%
-
-- Electro - (Safe) 
-   Probabilities: (+)20.00%, (-)0.00%, (~)80.00%
-   Max Impact: +100% | -0%
-   Possible Buffs: +100% +50% +50% 
-   Average Impact: 13.33%
-
-- Wind - (Safe) 
-   Probabilities: (+)26.67%, (-)6.67%, (~)66.67%
-   Max Impact: +100% | -50%
-   Possible Buffs: +100% +50% +50% +50% 
-   Possible Debuffs: -50% 
-   Average Impact: 13.33%
-
-- Metal - (Safe) 
-   Probabilities: (+)20.00%, (-)20.00%, (~)60.00%
-   Max Impact: +120% | -60%
-   Possible Buffs: +120% +100% +40% 
-   Possible Debuffs: -60% -30% -20% 
-   Average Impact: 10.00%
-
-- Fire - (Safe) 
-   Probabilities: (+)13.33%, (-)20.00%, (~)66.67%
-   Max Impact: +100% | -40%
-   Possible Buffs: +100% +60% 
-   Possible Debuffs: -40% -40% -30% 
-   Average Impact: 3.33%
-
-- Ice - (Safe) 
-   Probabilities: (+)13.33%, (-)6.67%, (~)80.00%
-   Max Impact: +40% | -40%
-   Possible Buffs: +40% +30% 
-   Possible Debuffs: -40% 
-   Average Impact: 2.00%
 
 - Light - (! Greenhouse !) 
    Probabilities: (+)6.67%, (-)33.33%, (~)60.00%
@@ -112,10 +60,57 @@ Tomorrows Weather Prediction:
    Possible Debuffs: -40% -20% -20% -20% -10% 
    Average Impact: -6.00%
 
+- Ice - (Safe)
+   Probabilities: (+)30.00%, (-)10.00%, (~)60.00%
+   Max Impact: +120% | -40%
+   Possible Buffs: +120% +100% +60%
+   Possible Debuffs: -40%
+   Average Impact: 24.00%
+
+- Metal - (No Bad Weather - Safe)
+   Probabilities: (+)30.00%, (-)0.00%, (~)70.00%
+   Max Impact: +100% | -0%
+   Possible Buffs: +100% +50% +40%    Average Impact: 19.00%
+
+- Fire - (Safe)
+   Probabilities: (+)40.00%, (-)30.00%, (~)30.00%
+   Max Impact: +100% | -60%
+   Possible Buffs: +100% +80% +40% +40%
+   Possible Debuffs: -60% -40% -40%
+   Average Impact: 12.00%
+
+- Wind - (No Bad Weather - Safe)
+   Probabilities: (+)30.00%, (-)0.00%, (~)70.00%
+   Max Impact: +50% | -0%
+   Possible Buffs: +50% +50% +10%    Average Impact: 11.00%
+
+- Electro - (No Bad Weather - Safe)
+   Probabilities: (+)20.00%, (-)0.00%, (~)80.00%
+   Max Impact: +50% | -0%
+   Possible Buffs: +50% +50%    Average Impact: 10.00%
+
+- Water - (Safety Greenhouse)
+   Probabilities: (+)10.00%, (-)10.00%, (~)80.00%
+   Max Impact: +60% | -20%
+   Possible Buffs: +60%
+   Possible Debuffs: -20%
+   Average Impact: 4.00%
+
+- Dark - (No Bad Weather - Safe)
+   Probabilities: (+)0.00%, (-)0.00%, (~)100.00%
+   Max Impact: +0% | -0%
+   Average Impact: 0.00%
+
+- Parasite - (No Bad Weather - Safe)
+   Probabilities: (+)0.00%, (-)0.00%, (~)100.00%
+   Max Impact: +0% | -0%
+   Average Impact: 0.00%
+
 Summary:
-Safe: Dark (+41%)  Parasite (+20%)  Water (+15%)  Electro (+13%)  Wind (+13%)  Metal (+10%)  
-Under Safety Margin: Fire (+3%)  Ice (+2%)  
-Unsafe: Light (-6%)  
+No Negative Weather: Metal (+19%)  Wind (+11%)  Electro (+10%)  Dark (+0%)  Parasite (+0%)
+Safe: Ice (+24%)  Fire (+12%)
+Under Safety Margin: Water (+4%)
+Unsafe: Light (-6%)
 
 Press enter to exit
 ```

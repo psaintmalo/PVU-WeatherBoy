@@ -368,7 +368,9 @@ def printStats(ptype, avg, pos, neg, weatherLen):
     maxBuff = max(pos)*100 if numOfPosImpact > 0 else 0
     maxDebuff = abs(min(neg)*100) if numOfNegImpact > 0 else 0
 
-    if avg < 0:
+    if numOfNegImpact == 0:
+        recText = "No Bad Weather - Safe"
+    elif avg < 0:
         recText = "! Greenhouse !"
     elif avg < 0+SAFETY_MARGIN:
         recText = "Safety Greenhouse"
@@ -390,8 +392,9 @@ def printStats(ptype, avg, pos, neg, weatherLen):
         print("\n   Possible Debuffs: ", end="")
         for debuf in sorted(neg):
             print("{:.0f}% ".format(debuf*100), end="")
+        print("")
 
-    print("\n   Average Impact: {:.2f}%\n".format((avg*100)))
+    print("   Average Impact: {:.2f}%\n".format((avg*100)))
 
 
 def loadSettings(file_location):
@@ -420,12 +423,12 @@ if __name__ == "__main__":
 
     options_filename = "options.txt"
 
-    AUTO_ENABLED = "0"
+    AUTO_ENABLED = "1"
     SAFETY_MARGIN = 5
     WAIT_EXIT = True
 
     if not os.path.isfile(options_filename):
-        print("Options file not found. Auto weather fetch wont work. Default safety margin = 1.")
+        print("Options file not found. Attempting auto fetch. Default safety margin = 5")
     else:
         settings = loadSettings(options_filename)
 
@@ -438,6 +441,10 @@ if __name__ == "__main__":
             num = int(settings["SAFETY_MARGIN"])
             if 100 > num > -100:
                 SAFETY_MARGIN = num/100
+            else:
+                print("Invalid SAFETY_MARGIN value")
+        else:
+            print("Invalid SAFETY_MARGIN value")
 
         if settings["WAIT_EXIT"] == "0":
             WAIT_EXIT = False
@@ -454,7 +461,7 @@ if __name__ == "__main__":
     weatherLen = len(weatherList)
 
     masterData = all_impact_stats(weatherList)
-    catBreakdown = {"safe": [], "safety_margin": [], "unsafe": []}
+    catBreakdown = {"no_debuffs": [], "safe": [], "safety_margin": [], "unsafe": []}
 
     print("\n\nTomorrows Weather Prediction:\n")
 
@@ -463,9 +470,12 @@ if __name__ == "__main__":
     for ptype, stats in masterSorted.items():
 
         avg = stats[0]
+        n_debuffs = len(stats[1][1])
         pTuple = (ptype, avg)
 
-        if avg > SAFETY_MARGIN:
+        if n_debuffs == 0:
+            catBreakdown["no_debuffs"].append(pTuple)
+        elif avg > SAFETY_MARGIN:
             catBreakdown["safe"].append(pTuple)
         elif avg < 0:
             catBreakdown["unsafe"].append(pTuple)
@@ -475,8 +485,11 @@ if __name__ == "__main__":
         printStats(ptype, stats[0], stats[1][0], stats[1][1], weatherLen)
 
     print("Summary:")
-    print("Safe: ", end="")
-    catBreakdown["safe"]
+    print("No Bad Weather: ", end="")
+    for ptype, avg in catBreakdown["no_debuffs"]:
+        print("{} (+{:.0f}%)".format(ptype.name.title(), 100 * avg), end="  ")
+
+    print("\nSafe: ", end="")
     for ptype, avg in catBreakdown["safe"]:
         print("{} (+{:.0f}%)".format(ptype.name.title(), 100*avg), end="  ")
 
