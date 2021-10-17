@@ -7,8 +7,10 @@ The program will recommend wether to use a greenhouse in 3 different ways:
 * -Electro- (Safe) -> Average impact above `SAFETY_MARGIN`
 * -Electro- (No Bad Weather - Safe) -> No weather with a negative impact possible for the next day
 
-If auto fetch is disabled, and you are unsure of the previous weathers, you can use *NULL*.
-The Season is currently required.
+When `AUTO_FETCH` is unavailable or disabled, and you are not sure about the previous
+weather or season, you can use `ALL` for the season, which will do a prediction
+based on all weathers in the pool. If you know the season, but not the previous weathers,
+you can use `NULL` for each of the two previous weathers to ignore them.
 
 ## Settings
 If you want to disable the automatic weather fetch, open options.txt with notepad or any editor and
@@ -20,7 +22,7 @@ at the line `SAFETY_MARGIN = 1`.
 A value of 1 means that it will recommend a greenhouse if the average impact is below 1%.
 
 ## Instalation
-To use this script you will need Python 3+ installed, https://www.python.org/. 
+To use this script you will need Python 3+ installed, https://www.python.org/.
 In order to run it you can simply double click `main.py`
 
 ## Current Features:
@@ -35,7 +37,7 @@ In order to run it you can simply double click `main.py`
 
 ## Using selenium (Deprecated)
 
-If you wish to use selenium instead of the requests library, then you can enable it by setting the 
+If you wish to use selenium instead of the requests library, then you can enable it by setting the
 `AUTO_ENABLED` option equal to 2. You will also have to install the selenium package (`pip install selenium`)
 download `chromedriver.exe`, which can be found here:
 https://sites.google.com/chromium.org/driver/, and place it in the PVU-WeatherBoy folder.
@@ -53,11 +55,11 @@ Previous weather: Locusts Swarm, Hurricanes
 
 Tomorrows Weather Prediction:
 
-- Light - (! Greenhouse !) 
+- Light - (! Greenhouse !)
    Probabilities: (+)6.67%, (-)33.33%, (~)60.00%
    Max Impact: +20% | -40%
-   Possible Buffs: +20% 
-   Possible Debuffs: -40% -20% -20% -20% -10% 
+   Possible Buffs: +20%
+   Possible Debuffs: -40% -20% -20% -20% -10%
    Average Impact: -6.00%
 
 - Ice - (Safe)

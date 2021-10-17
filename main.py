@@ -78,6 +78,7 @@ class Weather(Enum):
     SOLARMAXIMA = 20
 
     WINDY = 21
+
     SUNNY = 22
 
     WINTER_STORM = 23
@@ -88,6 +89,7 @@ class Weather(Enum):
 
 
 class Season(Enum):
+    ALL = -1
     SPRING = 0
     SUMMER = 1
     AUTUMN = 2
@@ -151,6 +153,21 @@ weatherWinterStorm = effects(light=-0.2, ice=0.6, wind=0.1, electro=0.5, fire=-0
 
 weatherThunderStorm = effects(metal=-0.2, dark=1.0, light=-0.2, water=0.1, electro=1.0)
 
+allWeather = {Weather.CLOUDY: weatherCloudy, Weather.IRON_RAIN: weatherIronRain,
+              Weather.COLDWAVE: weatherColdWave, Weather.SNOWY: weatherSnowy,
+              Weather.CORONAL_MASS_EJECTION: weatherCoronalMassEjection,
+              Weather.MAGNETICRECONNECTION: weatherMagneticReconnection,
+              Weather.FLOOD: weatherFlood, Weather.MOON_LIGHT: weatherMoonlight,
+              Weather.EARTHQUAKE: weatherEarthquake, Weather.HEATWAVE: weatherHeatwave,
+              Weather.HURRICANES: weatherHurricanes, Weather.LOCUSTS_SWARM: weatherLocustSwarm,
+              Weather.MALARIA: weatherMalaria, Weather.PROTON_STORM: weatherProtonStorm,
+              Weather.RAINY: weatherRainy, Weather.RATS_SWARM: weatherRatsSwarm,
+              Weather.SOLAR_FLARES: weatherSolarFlares, Weather.SOLAR_MAXIMA: weatherSolarMaxima,
+              Weather.SUNNY: weatherSunny, Weather.THUNDER_STORM: weatherThunderStorm,
+              Weather.TORNADO: weatherTornado, Weather.TSUNAMI: weatherTsunami,
+              Weather.VOLCANO: weatherVolcano, Weather.WINDY: weatherWindy,
+              Weather.WINTERSTORM: weatherWinterStorm}
+
 springSeason = {Weather.CLOUDY: weatherCloudy, Weather.EARTHQUAKE: weatherEarthquake,
                 Weather.HURRICANES: weatherHurricanes, Weather.IRON_RAIN: weatherIronRain,
                 Weather.LOCUSTS_SWARM: weatherLocustSwarm, Weather.MALARIA: weatherMalaria,
@@ -192,16 +209,19 @@ masterWeather = {Season.SPRING: springSeason, Season.SUMMER: summerSeason, Seaso
 def manual_data_input():
 
     season_input = input("Enter current season: ")
-    s = Season["SUMMER"]
+    s = Season["ALL"]
 
     try:
         s = Season[clean_name(season_input)]
+        if(s == Season.ALL):
+            print("Using all for the season is not recommended.")
+            return s, (Weather.NULL, Weather.NULL)
     except KeyError as e:
 
         if LOG_ERRORS:
             raise e
 
-        exit("Invalid season. Valid season are: Spring, Summer, Autumn and Winter")
+        exit("Invalid season. Valid season are: Spring, Summer, Autumn and Winter or ALL if unsure")
 
     weather_yesterday = Weather["NULL"]
     weather_today = Weather["NULL"]
@@ -347,12 +367,17 @@ def clean_name(name):
 def get_possible_weather(s, c):
     enumResult = []
     result = []
+    if(s != Season.ALL):
+        for wEnum, weather in masterWeather.get(s).items():
+            if wEnum in c:
+                continue
+            enumResult.append(wEnum)
+            result.append(weather)
 
-    for wEnum, weather in masterWeather.get(s).items():
-        if wEnum in c:
-            continue
-        enumResult.append(wEnum)
-        result.append(weather)
+    else:
+        for wEnum, weather in allWeather.items():
+            enumResult.append(wEnum)
+            result.append(weather)
 
     return enumResult, result
 
@@ -544,5 +569,5 @@ if __name__ == "__main__":
 
     if WAIT_EXIT:
         input("\n\nPress enter to exit")
-
-    print("")
+    else:
+        print("")
