@@ -259,7 +259,7 @@ def selenium_scraper():
     seasons = driver.find_elements_by_class_name("season")
     s = Season[clean_name(seasons[2].get_attribute("textContent")[8:])]
 
-    dated = driver.find_elements_by_class_name("card-date")
+    dates = driver.find_elements_by_class_name("card-date")
     print("\nPredicting day: " + dates[2].get_attribute("textContent"))
     print("Tomorrows Season: " + s.name.title())
     print("Previous weather: {}, {}".format(w[0].name.title().replace("_", " ")
@@ -544,3 +544,5 @@ if __name__ == "__main__":
 
     if WAIT_EXIT:
         input("\n\nPress enter to exit")
+
+    print("")
